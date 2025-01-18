@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 import BlogPost, { IBlogPost } from '../models/blog-post.model';
 import { blogPostSchema, BlogPostInput } from '../validations/blog-post.valiadtion';
-import { AppError } from '../utils/errors';
+import { ValidationError, NotFoundError, handleError } from '../utils/error-handling';
 
 export const getAllPosts = async (
   req: Request,
@@ -13,11 +13,7 @@ export const getAllPosts = async (
     const posts: IBlogPost[] = await BlogPost.find();
     res.status(200).json(posts);
   } catch (error) {
-    if (error instanceof ZodError) {
-      next(new AppError(error.errors[0].message, 400));
-    } else {
-      next(new AppError('Error fetching posts', 500));
-    }
+    handleError(error, res);
   }
 };
 
@@ -33,9 +29,9 @@ export const createPost = async (
     res.status(201).json(savedPost);
   } catch (error) {
     if (error instanceof ZodError) {
-      next(new AppError(error.errors[0].message, 400));
+      handleError(new ValidationError('Validation failed', error.errors), res);
     } else {
-      next(new AppError('Error creating post', 500));
+      handleError(error, res);
     }
   }
 };
@@ -48,15 +44,11 @@ export const getPostById = async (
   try {
     const post: IBlogPost | null = await BlogPost.findById(req.params.id);
     if (!post) {
-      throw new AppError('Post not found', 404);
+      throw new NotFoundError('Post not found');
     }
     res.status(200).json(post);
   } catch (error) {
-    if (error instanceof AppError) {
-      next(error);
-    } else {
-      next(new AppError('Error fetching post', 500));
-    }
+    handleError(error, res);
   }
 };
 
@@ -73,16 +65,14 @@ export const updatePost = async (
       { new: true, runValidators: true },
     );
     if (!updatedPost) {
-      throw new AppError('Post not found', 404);
+      throw new NotFoundError('Post not found');
     }
     res.status(200).json(updatedPost);
   } catch (error) {
     if (error instanceof ZodError) {
-      next(new AppError(error.errors[0].message, 400));
-    } else if (error instanceof AppError) {
-      next(error);
+      handleError(new ValidationError('Validation failed', error.errors), res);
     } else {
-      next(new AppError('Error updating post', 500));
+      handleError(error, res);
     }
   }
 };
@@ -95,14 +85,10 @@ export const deletePost = async (
   try {
     const deletedPost: IBlogPost | null = await BlogPost.findByIdAndDelete(req.params.id);
     if (!deletedPost) {
-      throw new AppError('Post not found', 404);
+      throw new NotFoundError('Post not found');
     }
     res.status(200).json({ message: 'Post deleted successfully' });
   } catch (error) {
-    if (error instanceof AppError) {
-      next(error);
-    } else {
-      next(new AppError('Error deleting post', 500));
-    }
+    handleError(error, res);
   }
 };

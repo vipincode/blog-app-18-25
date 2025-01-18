@@ -31,7 +31,7 @@ export default [
     },
     rules: {
       ...tsPlugin.configs['recommended'].rules,
-      'prettier/prettier': 'error',
+      'prettier/prettier': ['error', {}, { usePrettierrc: true }],
       // Add any custom rules here
       '@typescript-eslint/no-unused-vars': [
         'error',
