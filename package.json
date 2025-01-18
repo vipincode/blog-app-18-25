@@ -7,8 +7,7 @@
     "dev": "nodemon",
     "build": "tsc",
     "test": "jest",
-
-    "prepare": "husky install",
+    "prepare": "husky",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
@@ -26,6 +25,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "helmet": "^8.0.0",
+    "joi": "^17.13.3",
+    "mongoose": "^8.9.5",
     "morgan": "^1.10.0",
     "zod": "^3.24.1"
   },
@@ -55,7 +56,12 @@
     "typescript": "^5.7.3"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write"],
-    "*.{json,md}": ["prettier --write"]
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   }
 }
